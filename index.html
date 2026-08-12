@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBFPUMBA // Recon & Enumeration Hub</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-heading: #58a6ff;
+            --accent-green: #238636;
+            --accent-green-hover: #2ea043;
+            --code-bg: #011627;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            color: var(--text-heading);
+        }
+
+        header span {
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+
+        .config-bar {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--text-heading);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            flex: 1;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: var(--text-heading);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .payload-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .payload-item span {
+            font-size: 0.8rem;
+            color: #8b949e;
+        }
+
+        .code-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-box code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #ecc48d;
+            word-break: break-all;
+        }
+
+        .btn-copy {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background-color: var(--accent-green-hover);
+        }
+
+        footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8b949e;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        footer strong {
+            color: var(--text-heading);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TBFPUMBA // RECON & ENUMERATION HUB</h1>
+        <span>Target Intelligence & Fuzzing Generator</span>
+    </header>
+
+    <!-- Конфиг цели -->
+    <div class="config-bar">
+        <div class="input-group">
+            <label>Target IP / Host:</label>
+            <input type="text" id="target" value="10.129.152.177" oninput="updateCmds()">
+        </div>
+        <div class="input-group">
+            <label>Domain / VHOST:</label>
+            <input type="text" id="domain" value="target.htb" oninput="updateCmds()">
+        </div>
+        <div class="input-group">
+            <label>Wordlist Path:</label>
+            <input type="text" id="wordlist" value="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt" oninput="updateCmds()">
+        </div>
+    </div>
+
+    <div class="grid-container">
+
+        <!-- Nmap Recon -->
+        <div class="card">
+            <h2>Nmap Network Scanning</h2>
+
+            <div class="payload-item">
+                <span>Quick Scan (Open Ports)</span>
+                <div class="code-box">
+                    <code id="cmd-nmap-quick">nmap -p- --min-rate 5000 10.129.152.177</code>
+                    <button class="btn-copy" onclick="copyText('cmd-nmap-quick')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>Detailed Service & Script Scan (-sCV)</span>
+                <div class="code-box">
+                    <code id="cmd-nmap-full">nmap -sC -sV -p- -oN nmap_scan.txt 10.129.152.177</code>
+                    <button class="btn-copy" onclick="copyText('cmd-nmap-full')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>UDP Top 100 Scan</span>
+                <div class="code-box">
+                    <code id="cmd-nmap-udp">nmap -sU --top-ports 100 10.129.152.177</code>
+                    <button class="btn-copy" onclick="copyText('cmd-nmap-udp')">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web Fuzzing (ffuf & gobuster) -->
+        <div class="card">
+            <h2>Web Directory & VHOST Fuzzing</h2>
+
+            <div class="payload-item">
+                <span>ffuf Directory Scan</span>
+                <div class="code-box">
+                    <code id="cmd-ffuf-dir">ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.129.152.177/FUZZ -recursion</code>
+                    <button class="btn-copy" onclick="copyText('cmd-ffuf-dir')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>ffuf Subdomain / VHOST Enumeration</span>
+                <div class="code-box">
+                    <code id="cmd-ffuf-vhost">ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://target.htb -H "Host: FUZZ.target.htb" -fs 154</code>
+                    <button class="btn-copy" onclick="copyText('cmd-ffuf-vhost')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>Gobuster Directory Scan</span>
+                <div class="code-box">
+                    <code id="cmd-gobuster">gobuster dir -u http://10.129.152.177 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,txt</code>
+                    <button class="btn-copy" onclick="copyText('cmd-gobuster')">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BruteForce & Services -->
+        <div class="card">
+            <h2>Services & Bruteforce</h2>
+
+            <div class="payload-item">
+                <span>Hydra SSH Bruteforce</span>
+                <div class="code-box">
+                    <code id="cmd-hydra-ssh">hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.129.152.177 ssh</code>
+                    <button class="btn-copy" onclick="copyText('cmd-hydra-ssh')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>WPScan WordPress Enum</span>
+                <div class="code-box">
+                    <code id="cmd-wpscan">wpscan --url http://target.htb --enumerate u,vp,vt</code>
+                    <button class="btn-copy" onclick="copyText('cmd-wpscan')">Copy</button>
+                </div>
+            </div>
+
+            <div class="payload-item">
+                <span>SMB Shares Listing</span>
+                <div class="code-box">
+                    <code id="cmd-smb">smbclient -L //10.129.152.177/ -N</code>
+                    <button class="btn-copy" onclick="copyText('cmd-smb')">Copy</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Created & Maintained by <strong>TBFPUMBA</strong> | Security Tools | Licensed under <a href="LICENSE" target="_blank" style="color: var(--text-heading); text-decoration: none;">GNU GPLv3</a>
+    </footer>
+
+    <script>
+        function updateCmds() {
+            const target = document.getElementById('target').value || '10.129.152.177';
+            const domain = document.getElementById('domain').value || 'target.htb';
+            const wl = document.getElementById('wordlist').value || '/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt';
+
+            document.getElementById('cmd-nmap-quick').innerText = `nmap -p- --min-rate 5000 ${target}`;
+            document.getElementById('cmd-nmap-full').innerText = `nmap -sC -sV -p- -oN nmap_scan.txt ${target}`;
+            document.getElementById('cmd-nmap-udp').innerText = `nmap -sU --top-ports 100 ${target}`;
+
+            document.getElementById('cmd-ffuf-dir').innerText = `ffuf -w ${wl} -u http://${target}/FUZZ -recursion`;
+            document.getElementById('cmd-ffuf-vhost').innerText = `ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://${domain} -H "Host: FUZZ.${domain}" -fs 154`;
+            document.getElementById('cmd-gobuster').innerText = `gobuster dir -u http://${target} -w ${wl} -x php,html,txt`;
+
+            document.getElementById('cmd-hydra-ssh').innerText = `hydra -l admin -P /usr/share/wordlists/rockyou.txt ${target} ssh`;
+            document.getElementById('cmd-wpscan').innerText = `wpscan --url http://${domain} --enumerate u,vp,vt`;
+            document.getElementById('cmd-smb').innerText = `smbclient -L //${target}/ -N`;
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Команда скопирована!');
+            });
+        }
+    </script>
+</body>
+</html>
+
